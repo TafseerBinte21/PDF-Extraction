@@ -1,3 +1,4 @@
+// PdfRagService.java
 package com.example.pdfrag.service;
 
 import lombok.RequiredArgsConstructor;
@@ -13,54 +14,43 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PdfRagService {
 
-    private final ChatClient chatClient = null;
-    private final EmbeddingClient embeddingClient = null;
-    private final VectorStore vectorStore = null;
-
-    private String extractedText = "";
+    private final ChatClient chatClient;
+    private final EmbeddingClient embeddingClient;
+    private final VectorStore vectorStore;
+    
+    public PdfRagService(ChatClient chatClient,
+            EmbeddingClient embeddingClient,
+            VectorStore vectorStore) {
+this.chatClient = chatClient;
+this.embeddingClient = embeddingClient;
+this.vectorStore = vectorStore;
+}
 
     public String processPdf(MultipartFile file) {
         try (PDDocument document = PDDocument.load(file.getInputStream())) {
-            PDFTextStripper stripper = new PDFTextStripper();
-            extractedText = stripper.getText(document);
-            
-            // Create a Document with the extracted text
-            Document doc = new Document(extractedText);
-            
-            // Add to vector store
-//            vectorStore.add(List.of(doc));
-            vectorStore.add((List<Document>) doc);
-            
-            
-            return "PDF uploaded and embedded successfully.";
+            String text = new PDFTextStripper().getText(document);
+            vectorStore.add(List.of(new Document(text)));
+            System.err.println("pdf "+text);
+            System.err.println("vector "+vectorStore+"\n");
+            return "PDF processed successfully!";
         } catch (IOException e) {
-            return "Error processing PDF: " + e.getMessage();
+            return "Failed to process PDF: " + e.getMessage();
         }
     }
 
+
     public String answerQuestion(String question) {
-        // Embed the question
-        List<Double> embedding = embeddingClient.embed(question);
-        
-        // Perform similarity search
         List<Document> results = vectorStore.similaritySearch(
             SearchRequest.query(question).withTopK(1)
         );
-
         String context = results.isEmpty() ? "" : results.get(0).getContent();
-
-        String prompt = String.format(
-            "Answer the question based on the context below:%n%nContext:%n%s%n%nQuestion: %s",
-            context,
-            question
+        return chatClient.call(
+            "Answer based on this context:\n" + context + "\nQuestion: " + question
         );
-
-        return chatClient.call(prompt);
     }
 }

@@ -1,16 +1,13 @@
 spring:
   ai:
     ollama:
-      enabled: true
       base-url: http://localhost:11434
       chat:
         model: mistral
       embedding:
-        model: mistral-embed
-  data:
-    redis:
-      host: localhost
-      port: 6379
+        model: mistral
+    vectorstore:
+      type: simple  # Force in-memory store
 
 server:
   port: 8080
