@@ -32,17 +32,7 @@ this.embeddingClient = embeddingClient;
 this.vectorStore = vectorStore;
 }
 
-//    public String processPdf(MultipartFile file) {
-//        try (PDDocument document = PDDocument.load(file.getInputStream())) {
-//            String text = new PDFTextStripper().getText(document);
-//            vectorStore.add(List.of(new Document(text)));
-//            System.err.println("pdf "+text);
-//            System.err.println("vector "+vectorStore+"\n");
-//            return "PDF processed successfully!";
-//        } catch (IOException e) {
-//            return "Failed to process PDF: " + e.getMessage();
-//        }
-//    }
+
     
     public String processPdf(MultipartFile file) {
         try (PDDocument document = PDDocument.load(file.getInputStream())) {
@@ -58,15 +48,6 @@ this.vectorStore = vectorStore;
     }
 
 
-//    public String answerQuestion(String question) {
-//        List<Document> results = vectorStore.similaritySearch(
-//            SearchRequest.query(question).withTopK(1)
-//        );
-//        String context = results.isEmpty() ? "" : results.get(0).getContent();
-//        return chatClient.call(
-//            "Answer based on this context:\n" + context + "\nQuestion: " + question
-//        );
-//    }
     
     public String answerQuestion(String question) {
         List<Document> results = vectorStore.similaritySearch(

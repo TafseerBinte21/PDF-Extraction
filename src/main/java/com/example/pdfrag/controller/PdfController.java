@@ -28,5 +28,8 @@ public class PdfController {
         String response = pdfRagService.answerQuestion(question);
         return ResponseEntity.ok(response);
     }
+	
+	
+	
 
 }
